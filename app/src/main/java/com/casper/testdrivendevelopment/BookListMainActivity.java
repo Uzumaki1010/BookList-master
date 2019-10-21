@@ -25,6 +25,13 @@ import java.util.List;
 
 public class BookListMainActivity extends AppCompatActivity {
 
+    public static final int CONTEXT_MENU_NEW = 1;
+    public static final int CONTEXT_MENU_UPDATA = CONTEXT_MENU_NEW+1;
+    public static final int CONTEXT_MENU_DELETE = CONTEXT_MENU_UPDATA+1;
+    public static final int CONTEXT_MENU_ABOUT = CONTEXT_MENU_DELETE+1;
+
+    public static final int REQUEST_CODE_NEW = 901;
+    public static final int REQUEST_CODE_UPDATA = REQUEST_CODE_NEW+1;
     ListView listViewBooks;
     private List<Book> listBooks=new ArrayList<>();
     BookAdapter bookAdapter;
@@ -50,17 +57,18 @@ public class BookListMainActivity extends AppCompatActivity {
 
         menu.setHeaderTitle(listBooks.get(info.position).getTitle());
 
-        menu.add(0, 1, 0, "新建");
-        menu.add(0, 2, 0, "删除");
-        menu.add(0, 3, 0, "关于...");
-        menu.add(0, 4, 0, "修改");
+        menu.add(0, CONTEXT_MENU_NEW, 0, "新建");
+        menu.add(0, CONTEXT_MENU_UPDATA, 0, "修改");
+        menu.add(0, CONTEXT_MENU_DELETE, 0, "删除");
+        menu.add(0, CONTEXT_MENU_ABOUT, 0, "关于...");
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode){
-            case 901:
+            case REQUEST_CODE_NEW:
                 if(resultCode==RESULT_OK) {
                     String title=data.getStringExtra("title");
                     int insertPosition=data.getIntExtra("position",0);
@@ -69,7 +77,7 @@ public class BookListMainActivity extends AppCompatActivity {
                     bookAdapter.notifyDataSetChanged();
                 }
                 break;
-            case 902:
+            case REQUEST_CODE_UPDATA:
                 if(resultCode==RESULT_OK){
                     String title=data.getStringExtra("title");
                     int insertPosition=data.getIntExtra("position",0);
@@ -84,17 +92,24 @@ public class BookListMainActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case 1:
+            case CONTEXT_MENU_NEW:
                 Intent intent=new Intent(this,EditBookActivity.class);
                 intent.putExtra("title","无名书籍");
                 intent.putExtra("position",((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
-                startActivityForResult(intent,901);
+                startActivityForResult(intent, REQUEST_CODE_NEW);
 
                 /*final int InsertPosition=((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position;
                 listBooks.add(InsertPosition,new Book("Book",R.drawable.book_no_name));
                 bookAdapter.notifyDataSetChanged();*/
                 break;
-            case 2:
+            case CONTEXT_MENU_UPDATA:
+                int insertPosition=((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position;
+                Intent intent2=new Intent(this,EditBookActivity.class);
+                intent2.putExtra("title",listBooks.get(insertPosition).getTitle());
+                intent2.putExtra("position",insertPosition);
+                startActivityForResult(intent2, REQUEST_CODE_UPDATA);
+                break;
+            case CONTEXT_MENU_DELETE:
                 AdapterView.AdapterContextMenuInfo info=(AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
                 final int RemovePosition=info.position;
                 Dialog dialog = new AlertDialog.Builder(BookListMainActivity.this).setTitle("删除信息？").setMessage("您确定要删除这条信息吗？").setIcon(R.drawable.book_no_name).setPositiveButton("删除", new DialogInterface.OnClickListener() {
@@ -112,15 +127,8 @@ public class BookListMainActivity extends AppCompatActivity {
                 }).create();
                 dialog.show();
                 break;
-            case 3:
+            case CONTEXT_MENU_ABOUT:
                 Toast.makeText(BookListMainActivity.this,"图书列表v2.0", Toast.LENGTH_LONG).show();
-                break;
-            case 4:
-                int insertPosition=((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position;
-                Intent intent2=new Intent(this,EditBookActivity.class);
-                intent2.putExtra("title",listBooks.get(insertPosition).getTitle());
-                intent2.putExtra("position",insertPosition);
-                startActivityForResult(intent2,902);
                 break;
         }
         return super.onContextItemSelected(item);
