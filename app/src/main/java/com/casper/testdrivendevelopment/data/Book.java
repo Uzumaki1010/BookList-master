@@ -1,10 +1,12 @@
-package com.casper.testdrivendevelopment;
+package com.casper.testdrivendevelopment.data;
+
+import java.io.Serializable;
 
 /**
  * Created by jszx on 2019/9/24.
  */
 
-public class Book {
+public class Book implements Serializable {
     private String title;
 
     public Book(String title, int coverResourceID) {

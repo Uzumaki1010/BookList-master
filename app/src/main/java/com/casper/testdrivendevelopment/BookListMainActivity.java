@@ -20,6 +20,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.casper.testdrivendevelopment.data.Book;
+import com.casper.testdrivendevelopment.data.model.BookSaver;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,14 +37,24 @@ public class BookListMainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_UPDATA = REQUEST_CODE_NEW+1;
     ListView listViewBooks;
     private List<Book> listBooks=new ArrayList<>();
+    BookSaver bookSaver;
     BookAdapter bookAdapter;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        bookSaver.save();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_list_main);
 
-        init();
+        bookSaver=new BookSaver(this);
+        listBooks=bookSaver.load();
+        if(listBooks.size()==0)
+            init();
         listViewBooks=this.findViewById(R.id.list_view_books);
 
         bookAdapter = new BookAdapter(BookListMainActivity.this, R.layout.list_item_book,listBooks);
